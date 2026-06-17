@@ -19,7 +19,9 @@ db.sqlite3
 .idea/
 
 # YOLO
+
 *.pt
+
 
 # Generated Detection Images
 analytics/detected_frames/
