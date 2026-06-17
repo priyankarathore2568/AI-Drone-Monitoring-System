@@ -1,0 +1,29 @@
+
+# Virtual Environment
+myvenv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+db.sqlite3
+
+# Environment Variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# YOLO
+*.pt
+
+# Generated Detection Images
+analytics/detected_frames/
+
+# OS Files
+.DS_Store
+Thumbs.db

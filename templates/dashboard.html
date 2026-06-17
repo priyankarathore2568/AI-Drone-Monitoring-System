@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Drone Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 25px 40px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin-top: 8px;
+            color: #d1d5db;
+        }
+
+        .container {
+            padding: 30px 40px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin: 0;
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .card h2 {
+            margin: 12px 0 0;
+            font-size: 34px;
+            color: #111827;
+        }
+
+        .section {
+            margin-top: 35px;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .alert-row {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 14px 0;
+        }
+
+        .alert-row:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .critical {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .high {
+            background: #ffedd5;
+            color: #9a3412;
+        }
+
+        .medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>AI Drone Monitoring & Analytics Dashboard</h1>
+        <p>Real-time backend dashboard for drone operations, telemetry, deliveries and alerts</p>
+    </div>
+
+    <div class="container">
+
+        <div class="cards">
+            <div class="card">
+                <h3>Total Drones</h3>
+                <h2>{{ total_drones }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Active Drones</h3>
+                <h2>{{ active_drones }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Total Deliveries</h3>
+                <h2>{{ total_deliveries }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Telemetry Records</h3>
+                <h2>{{ total_telemetry_records }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Total Alerts</h3>
+                <h2>{{ total_alerts }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Unresolved Alerts</h3>
+                <h2>{{ unresolved_alerts }}</h2>
+            </div>
+
+            <div class="card">
+                  <h3>Total Detections</h3>
+                  <h2>{{ total_detections }}</h2>
+            </div>
+
+            <div class="card">
+                 <h3>Person Detections</h3>
+                 <h2>{{ person_detections }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Car Detections</h3>
+                <h2>{{ car_detections }}</h2>
+            </div>
+
+            <div class="card">
+               <h3>Critical Detections</h3>
+               <h2>{{ critical_detections }}</h2>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Analytics Charts</h2>
+
+           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;">
+                <div>
+                 <h3>Drone Status</h3>
+                 <canvas id="droneChart"></canvas>
+                </div>
+               <div>
+                  <h3>Alert Distribution</h3>
+                   <canvas id="alertChart"></canvas>
+               </div>
+                <div>
+                  <h3>Delivery Status</h3>
+                  <canvas id="deliveryChart"></canvas>
+                </div>
+                <div>
+                    <h3>Object Detection</h3>
+                    <canvas id="objectChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Latest Alerts</h2>
+
+            {% for alert in latest_alerts %}
+                <div class="alert-row">
+                    <strong>{{ alert.alert_type }}</strong>
+                    |
+                    <span class="badge {% if alert.severity == 'CRITICAL' %}critical{% elif alert.severity == 'HIGH' %}high{% else %}medium{% endif %}">
+                        {{ alert.severity }}
+                    </span>
+                    <br><br>
+                    {{ alert.message }}
+                    <br>
+                    <small>{{ alert.created_at }}</small>
+                </div>
+            {% empty %}
+                <p>No alerts found.</p>
+            {% endfor %}
+        </div>
+        <div class="section">
+            <h2>Latest Object Detections</h2>
+
+            {% for detection in latest_detections %}
+                <div class="alert-row">
+                    <strong>{{ detection.object_type }}</strong>
+            |
+                    <span class="badge {% if detection.risk_level == 'CRITICAL' %}critical{% elif detection.risk_level == 'HIGH' %}high{% else %}medium{% endif %}">
+                        {{ detection.risk_level }}
+                    </span>
+                    <br><br>
+                    Confidence: {{ detection.confidence }}
+                    <br>
+                    Image: {{ detection.image_path }}
+                    <br>
+                      <small>{{ detection.detected_at }}</small>
+                </div>
+            {% empty %}
+              <p>No detections found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="footer">
+        AI Drone Delivery Monitoring & Analytics Platform | Django Backend MVP
+    </div>
+<script>
+    new Chart(document.getElementById("droneChart"), {
+        type: "pie",
+        data: {
+            labels: ["Active", "Maintenance", "Inactive"],
+            datasets: [{
+                data: [
+                    {{ active_drones }},
+                    {{ maintenance_drones }},
+                    {{ inactive_drones }}
+                ]
+            }]
+        }
+    });
+
+    new Chart(document.getElementById("alertChart"), {
+        type: "pie",
+        data: {
+           labels: [
+               "Low Battery",
+               "Weak Signal",
+               "High Temperature",
+               "Obstacle",
+               "Intruder",
+               "Collision"
+            ],
+            datasets: [{
+              data: [
+                  {{ low_battery_alerts }},
+                  {{ weak_signal_alerts }},
+                  {{ high_temperature_alerts }},
+                  {{ obstacle_alerts }},
+                  {{ intruder_alerts }},
+                  {{ collision_alerts }}
+                ]
+            }]
+        }
+   });
+
+    new Chart(document.getElementById("deliveryChart"), {
+        type: "bar",
+        data: {
+            labels: ["Pending", "Assigned", "Delivered", "Failed"],
+            datasets: [{
+                label: "Deliveries",
+                data: [
+                    {{ pending_deliveries }},
+                    {{ assigned_deliveries }},
+                    {{ delivered_deliveries }},
+                    {{ failed_deliveries }}
+                ]
+            }]
+        }
+    });
+
+    new Chart(document.getElementById("objectChart"), {
+       type: "bar",
+       data: {
+           labels: ["Person", "Car", "Bus", "Truck", "Motorcycle"],
+            datasets: [{
+                 label: "Detections",
+                 data: [
+                   {{ person_detections }},
+                   {{ car_detections }},
+                   {{ bus_detections }},
+                   {{ truck_detections }},
+                   {{ motorcycle_detections }}
+                ]
+            }]
+        }
+    });
+</script>
+</body>
+</html>
